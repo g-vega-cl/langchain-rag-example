@@ -15,7 +15,7 @@ import {
 import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 
 const loader = new GithubRepoLoader(
-    "https://github.com/g-vega-cl/game-of-life",
+    "https://github.com/g-vega-cl/u-n-a",
     {
         branch: "main",
         recursive: true,
@@ -55,7 +55,7 @@ const declarativeRagChain = RunnableSequence.from([
 ]);
 
 
-const query = "What's inside the package.json file in the 'game-of-life' repository in the ./frontend folder?";
+const query = "How is platform pay setup in this repository?";
 const answer = await declarativeRagChain.invoke(query);
 
 console.log('----------------------------------------------------------')
