@@ -12,12 +12,21 @@ import {
     RunnableSequence,
     RunnablePassthrough,
 } from "@langchain/core/runnables";
+import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 
-const loader = new CheerioWebBaseLoader(
-    "https://lilianweng.github.io/posts/2023-06-23-agent/"
+const loader = new GithubRepoLoader(
+    "https://github.com/g-vega-cl/game-of-life",
+    {
+        branch: "main",
+        recursive: true,
+        unknown: "warn",
+        maxConcurrency: 5, // Defaults to 2
+    }
 );
 
 const docs = await loader.load();
+
+console.log('docs',docs);
 
 const textSplitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
@@ -32,8 +41,8 @@ const vectorStore = await MemoryVectorStore.fromDocuments(
 
 // Retrieve and generate using the relevant snippets of the blog.
 const retriever = vectorStore.asRetriever();
-const prompt = await pull < ChatPromptTemplate > ("rlm/rag-prompt");
-const llm = new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0 });
+const prompt = await pull<ChatPromptTemplate>("rlm/rag-prompt");
+const llm = new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0.0 });
 
 const declarativeRagChain = RunnableSequence.from([
     {
@@ -45,7 +54,11 @@ const declarativeRagChain = RunnableSequence.from([
     new StringOutputParser(),
 ]);
 
-const answer = await declarativeRagChain.invoke("What is reinforcement learning?");
+
+const query = "What's inside the package.json file in the 'game-of-life' repository in the ./frontend folder?";
+const answer = await declarativeRagChain.invoke(query);
 
 console.log('----------------------------------------------------------')
+console.log(query);
+console.log('')
 console.log(answer);

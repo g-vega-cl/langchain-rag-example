@@ -1,5 +1,4 @@
 import "cheerio";
-import { CheerioWebBaseLoader } from "@langchain/community/document_loaders/web/cheerio";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
@@ -7,8 +6,15 @@ import { pull } from "langchain/hub";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { formatDocumentsAsString } from "langchain/util/document";
 import { RunnableSequence, RunnablePassthrough, } from "@langchain/core/runnables";
-const loader = new CheerioWebBaseLoader("https://lilianweng.github.io/posts/2023-06-23-agent/");
+import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
+const loader = new GithubRepoLoader("https://github.com/g-vega-cl/game-of-life", {
+    branch: "main",
+    recursive: true,
+    unknown: "warn",
+    maxConcurrency: 5, // Defaults to 2
+});
 const docs = await loader.load();
+console.log('docs', docs);
 const textSplitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
     chunkOverlap: 200,
@@ -18,7 +24,7 @@ const vectorStore = await MemoryVectorStore.fromDocuments(splits, new OpenAIEmbe
 // Retrieve and generate using the relevant snippets of the blog.
 const retriever = vectorStore.asRetriever();
 const prompt = await pull("rlm/rag-prompt");
-const llm = new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0 });
+const llm = new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0.0 });
 const declarativeRagChain = RunnableSequence.from([
     {
         context: retriever.pipe(formatDocumentsAsString),
@@ -28,5 +34,9 @@ const declarativeRagChain = RunnableSequence.from([
     llm,
     new StringOutputParser(),
 ]);
-const answer = await declarativeRagChain.invoke("What is reinforcement learning?");
-console.log('finish program', answer);
+const query = "What's inside the package.json file in the 'game-of-life' repository in the ./frontend folder?";
+const answer = await declarativeRagChain.invoke(query);
+console.log('----------------------------------------------------------');
+console.log(query);
+console.log('');
+console.log(answer);
