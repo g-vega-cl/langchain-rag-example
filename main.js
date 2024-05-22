@@ -24,7 +24,7 @@ const vectorStore = await MemoryVectorStore.fromDocuments(splits, new OpenAIEmbe
 // Retrieve and generate using the relevant snippets of the blog.
 const retriever = vectorStore.asRetriever();
 const prompt = await pull("rlm/rag-prompt");
-const llm = new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0.0 });
+const llm = new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0.1 });
 const declarativeRagChain = RunnableSequence.from([
     {
         context: retriever.pipe(formatDocumentsAsString),
