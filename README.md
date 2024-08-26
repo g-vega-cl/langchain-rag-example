@@ -10,3 +10,7 @@ export GITHUB_TOKEN=
 export GITHUB_ACCESS_TOKEN=
 LANGCHAIN_TRACING_V2="true"
 export LANGCHAIN_API_KEY="...."
+
+
+https://js.langchain.com/v0.2/docs/tutorials/rag/
+https://smith.langchain.com/o/{my id}/  <- just login with your acc
